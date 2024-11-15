@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.envrc
+
+# Poetry
+poetry.lock
+
+# Docker
+*.log

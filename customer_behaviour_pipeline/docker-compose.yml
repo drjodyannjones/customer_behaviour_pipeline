@@ -1,0 +1,13 @@
+# Docker Compose for customer_behaviour_pipeline
+
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/.gcp/keyfile.json
