@@ -5,8 +5,12 @@ __pycache__/
 .env
 .envrc
 
+
 # Poetry
 poetry.lock
 
 # Docker
 *.log
+
+config/
+.python-version
