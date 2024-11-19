@@ -10,3 +10,12 @@ poetry.lock
 
 # Docker
 *.log
+
+# Data
+data/
+
+# Config - Kaggle Key and GCS Service Key Stored here
+config/
+
+# Spark Hadoop
+*.tgz
