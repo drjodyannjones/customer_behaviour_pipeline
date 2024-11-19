@@ -1,16 +1,19 @@
 # Dockerfile for customer_behaviour_pipeline
-
 FROM python:3.10-slim
 
-# Set up working directory
-WORKDIR /app
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
-COPY pyproject.toml poetry.lock /app/
-RUN pip install poetry && poetry install --no-root
+ENV PYTHONUNBUFFERED 1
 
-# Copy project files
-COPY . /app
+ENV AIRFLOW_HOME /app/airflow
+WORKDIR $AIRFLOW_HOME
 
-# Set entry point
-CMD ["poetry", "run", "python"]
+COPY airflow_scripts airflow_scripts
+RUN chmod +x airflow_scripts/entrypoint.sh
+
+COPY pyproject.toml poetry.lock ./
+
+RUN pip3 install --upgrade --no-cache-dir pip \
+    && pip3 install poetry \
+    && poetry install --only main
+

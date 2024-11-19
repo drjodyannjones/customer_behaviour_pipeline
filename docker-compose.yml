@@ -1,13 +1,69 @@
-# Docker Compose for customer_behaviour_pipeline
-
-version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  postgres:
+    image: postgres
+    container_name: postgres_db
+    restart: always
     volumes:
-      - .:/app
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
     environment:
-      - GOOGLE_APPLICATION_CREDENTIALS=/app/.gcp/keyfile.json
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+  scheduler:
+    build: .
+    command: poetry run airflow scheduler
+    restart: on-failure
+    depends_on:
+      - postgres
+    environment:
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_CORE_EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_SQL_ALCHEMY_CONN}
+      AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW_CORE_LOAD_EXAMPLES}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./dags:/app/airflow/dags
+      - ./data:/app/airflow/data
+      - ./logs:/app/airflow/logs
+
+  webserver:
+    build: .
+    command: poetry run airflow_scripts/entrypoint.sh
+    restart: on-failure
+    depends_on:
+      - postgres
+      - scheduler
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW__CORE__EXECUTOR: ${AIRFLOW_CORE_EXECUTOR}
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${AIRFLOW_DB_SQL_ALCHEMY_CONN}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER: ${DB_USER}
+
+  dataviz:
+    image: metabase/metabase
+    container_name: metabase
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3000"
+    volumes:
+      - dataviz_data:/metabase-data
+    environment:
+      MB_DB_TYPE: ${DB_TYPE}
+      MB_DB_DBNAME: ${DB_NAME}
+      MB_DB_PORT: ${MB_PORT}
+      MB_DB_USER: ${DB_USER}
+      MB_DB_PASS: ${DB_PASSWORD}
+      MB_DB_HOST: ${MB_HOST}
+      MB_DB_FILE: ${MB_FILE}
+
+volumes:
+  db_data:
+  dataviz_data:
