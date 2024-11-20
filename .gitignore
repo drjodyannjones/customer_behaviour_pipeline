@@ -16,3 +16,6 @@ config/
 .python-version
 
 **/data/
+
+# Logs folder
+logs/
