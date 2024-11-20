@@ -10,6 +10,7 @@ python = ">=3.10,<3.13"
 apache-airflow = "^2.10.3"
 apache-airflow-providers-postgres = "^5.14.0"
 pyspark = "^3.5.3"
+dbt-bigquery = "^1.8.3"
 
 
 [build-system]
