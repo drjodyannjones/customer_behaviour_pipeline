@@ -21,13 +21,15 @@ WITH product_category AS (
                     STRPOS(SUBSTRING(category_code, STRPOS(category_code, '.') + 1), '.') - 1
                 )
             ELSE 'Unknown'
-        END AS product_sub_category,
+        END AS product_sub_category
 
     FROM
         {{ source('gcs_cbp_bronze_layer', 'raw_events_oct_2019') }}
 )
 
 SELECT
-  distinct category_id, product_category, product_sub_category
+  DISTINCT pc.category_id,
+  pc.product_category,
+  pc.product_sub_category
 FROM
-  product_category
+  product_category pc
