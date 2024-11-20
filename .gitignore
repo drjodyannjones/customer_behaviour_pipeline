@@ -14,3 +14,5 @@ poetry.lock
 
 config/
 .python-version
+
+**/data/

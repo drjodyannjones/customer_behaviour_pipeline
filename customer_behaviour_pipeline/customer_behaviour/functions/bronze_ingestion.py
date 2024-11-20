@@ -1,56 +1,66 @@
 import os
-import tempfile
-import subprocess
 from google.cloud import storage
-import logging
 from kaggle.api.kaggle_api_extended import KaggleApi
+import zipfile
+import shutil
+from urllib.parse import urlparse
 
 
-kaggle_dataset_identifier = os.getenv('KAGGLE_DATASET_NAME')
-bucket = os.getenv('BUCKET_NAME')
-
-
-def get_and_save_data_from_kaggle(dataset_name: str, file_name: None, download_path):
+def download_dataset(dataset_name, file_name, config_dir, data_path):
     try:
-        download_path = tempfile.mkdtemp()
+        os.environ["KAGGLE_CONFIG_DIR"] = config_dir
         api = KaggleApi()
         api.authenticate()
         api.dataset_download_file(
-            dataset=dataset_name,
-            file_name=file_name,
-            path=download_path)
-        logging.info(f"Downloading data to directory {download_path}")
-        return download_path
-    except subprocess.CalledProcessError as e:
-        logging.error(f"Error downlowing dataset: {e}")
+                dataset=dataset_name,
+                file_name=file_name,
+                path=os.path.dirname(data_path))
+        zip_file_path = f"{data_path}{file_name}.zip"
+        with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
+            zip_ref.extractall(data_path)
+
+        for file in os.listdir(data_path):
+            if file.endswith("zip"):
+                file_no_longer_needed = os.path.join(data_path, file)
+                os.remove(file_no_longer_needed)
+    except Exception as e:
+        print(f"Error downlowing dataset: {e}")
+
+
+def upload_to_gcs(source_file_path):
+    try:
+        google_credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if not google_credentials_path:
+            print("Error: GOOGLE_APPLICATION_CREDENTIALS is not set in the .env file.")
+            return
+
+        gcs_path = os.getenv("BRONZE_LAYER_PATH")
+        if not gcs_path:
+            print("Error: GCS_PATH is not set in the .env file.")
+            return
+
+        parsed_url = urlparse(gcs_path)
+        folder_name = parsed_url.path.lstrip('/')
+        dataset_filename = "".join([file for file in os.listdir(source_file_path) if file.endswith("csv")])
+        data_source = os.path.join(source_file_path, dataset_filename)
+        destination_path = os.path.join(folder_name, dataset_filename)
+
+        project_id = os.getenv("PROJECT_ID")
+        gcs_bucket_name = os.getenv("BUCKET_NAME")
+        client = storage.Client(project=project_id)
+        bucket = client.bucket(gcs_bucket_name)
+        blob = bucket.blob(destination_path)
+        blob.upload_from_filename(data_source)
+    except Exception as e:
+        raise Exception(f"Failed to upload file to GCS: {e}")
 
 
 if __name__ == "__main__":
-    get_and_save_data_from_kaggle(kaggle_dataset_identifier, "2019-Oct.csv")
+    dataset_name = os.getenv("KAGGLE_DATASET_NAME")
+    file_name = "2019-Oct.csv"
+    kaggle_config_dir = os.getenv("KAGGLE_CONFIG_DIR")
+    data_path = os.getenv("LOCAL_DATA_PATH")
 
-
-# def download_from_kaggle_if_missing(dataset_name: str, local_path: str):
-#     """Download dataset from Kaggle if not already present."""
-#     if not os.path.exists(local_path):
-#         try:
-#             logging.info(f"Dataset not found locally. Downloading to {local_path}...")
-#             api = KaggleApi()
-#             api.authenticate()
-#             api.dataset_download_file(
-#                 dataset=dataset_name,
-#                 file_name="2019-Oct.csv",
-#                 path=os.path.dirname(local_path)
-#             )
-#             # Unzip the file if necessary
-#             logging.info(f"Unzipping downloaded file...")
-#             import zipfile
-#             zip_file_path = f"{os.path.dirname(local_path)}/2019-Oct.csv.zip"
-#             with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-#                 zip_ref.extractall(os.path.dirname(local_path))
-#             os.remove(zip_file_path)  # Remove the zip file after extraction
-#             logging.info(f"Dataset downloaded and extracted successfully to {local_path}")
-#         except Exception as e:
-#             logging.error(f"Failed to download dataset: {e}")
-#             raise
-#     else:
-#         logging.info(f"Dataset already exists locally at {local_path}")
+    download_dataset(dataset_name, file_name, kaggle_config_dir, data_path=data_path)
+    upload_to_gcs(data_path)
+    shutil.rmtree(data_path, ignore_errors=True)
