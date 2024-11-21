@@ -32,5 +32,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_project_cbp:
     # Config indicated by + and applies to all files under models/example/
-    example:
+    silver:
       +materialized: view
+      +schema: silver
+    gold:
+      +materialized: view
+      +schema: gold
