@@ -45,25 +45,24 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_USER: ${DB_USER}
 
-  dataviz:
-    image: metabase/metabase
-    container_name: metabase
-    restart: always
-    depends_on:
-      - postgres
-    ports:
-      - "3001:3000"
-    volumes:
-      - dataviz_data:/metabase-data
-    environment:
-      MB_DB_TYPE: ${DB_TYPE}
-      MB_DB_DBNAME: ${DB_NAME}
-      MB_DB_PORT: ${MB_PORT}
-      MB_DB_USER: ${DB_USER}
-      MB_DB_PASS: ${DB_PASSWORD}
-      MB_DB_HOST: ${MB_HOST}
-      MB_DB_FILE: ${MB_FILE}
+  # dataviz:
+  #   image: metabase/metabase
+  #   container_name: metabase
+  #   restart: always
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "3001:3000"
+  #   volumes:
+  #     - dataviz_data:/metabase-data
+  #   environment:
+  #     MB_DB_TYPE: ${DB_TYPE}
+  #     MB_DB_NAME: ${MB_DB_NAME}
+  #     MB_DB_PORT: ${MB_PORT}
+  #     MB_DB_USER: ${DB_USER}
+  #     MB_DB_PASS: ${DB_PASSWORD}
+  #     MB_DB_HOST: ${MB_HOST}
+  #     # MB_DB_FILE: ${MB_FILE}
 
 volumes:
   db_data:
-  dataviz_data:
