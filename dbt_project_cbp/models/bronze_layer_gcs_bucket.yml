@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: bronze_layer_gcs_bucket
+    description: "Model querying the external table linked to GCS bucket"
+    columns:
+      - name: event_time
+        description: "Timestamp of the event"
+      - name: event_type
+        description: "Type of the event (e.g., click, purchase)"
+      - name: product_id
+        description: "ID of the product involved in the event"
+sources:
+  - name: gcs_cbp_bronze_layer
+    tables:
+      - name: raw_events_oct_2019
+        description: >
+            External table linked to GCS bucket
+        config:
+          materialized: external
+        external:
+          location: "gs://customerbehaviorpipeline/test/2019-Oct.csv"
+          options:
+            format: csv

@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: silver_product_category
+    description: "This model extracts product category and sub-category information from raw events data, ensuring distinct rows for each category."
+    columns:
+      - name: category_id
+        description: "Unique identifier for the product category."
+      - name: product_category
+        description: "Extracted top-level product category from the category_code."
+      - name: product_sub_category
+        description: "Extracted sub-category of the product (if available) from the category_code."

@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: silver_user_session
+    description: "This model filters out events with empty user sessions and ensures distinct user-session pairs."
+    columns:
+      - name: user_session
+        description: "Unique identifier for the user's session."
+      - name: user_id
+        description: "Unique identifier for the user associated with the session."
