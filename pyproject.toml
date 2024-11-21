@@ -10,11 +10,11 @@ python = ">=3.10,<3.13"
 apache-airflow = "^2.10.3"
 apache-airflow-providers-postgres = "^5.14.0"
 pyspark = "^3.5.3"
-python-dotenv = "^1.0.1"
-google-cloud-storage = "^2.18.2"
-kaggle = "^1.6.17"
 dbt-bigquery = "^1.8.3"
 google-cloud-bigquery = "^3.27.0"
+google-cloud-storage = "^2.18.2"
+kaggle = "^1.6.17"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

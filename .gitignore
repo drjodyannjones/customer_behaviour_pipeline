@@ -15,7 +15,11 @@ poetry.lock
 config/
 .python-version
 
+
 logs/
 data/
 *.csv
 *.parquet
+
+**/data/
+
