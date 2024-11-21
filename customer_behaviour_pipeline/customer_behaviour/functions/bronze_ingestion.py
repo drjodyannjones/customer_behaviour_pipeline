@@ -51,6 +51,7 @@ def upload_to_gcs(source_file_path):
         bucket = client.bucket(gcs_bucket_name)
         blob = bucket.blob(destination_path)
         blob.upload_from_filename(data_source)
+        shutil.rmtree(data_source, ignore_errors=True)
     except Exception as e:
         raise Exception(f"Failed to upload file to GCS: {e}")
 
@@ -63,4 +64,3 @@ if __name__ == "__main__":
 
     download_dataset(dataset_name, file_name, kaggle_config_dir, data_path=data_path)
     upload_to_gcs(data_path)
-    shutil.rmtree(data_path, ignore_errors=True)
