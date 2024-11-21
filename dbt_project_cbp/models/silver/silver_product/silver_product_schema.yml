@@ -1,0 +1,16 @@
+version: 2
+
+models:
+  - name: silver_product
+    description: "This model processes product data, standardizes the brand field, extracts product names, and ensures distinct rows for each product."
+    columns:
+      - name: product_id
+        description: "Unique identifier for the product."
+      - name: category_id
+        description: "Identifier for the category associated with the product."
+      - name: product_name
+        description: "Extracted name of the product based on the category_code structure."
+      - name: brand
+        description: "Standardized brand name, with NULL values replaced by 'Unknown'."
+      - name: price
+        description: "Price of the product."

@@ -1,0 +1,20 @@
+
+version: 2
+
+models:
+  - name: silver_events
+    description: "This model processes events data, assigns unique event IDs, and filters out rows with empty user sessions."
+    columns:
+      - name: event_id
+        description: "Unique identifier for each event, generated as an MD5 hash of event_time, row_id, and user_session."
+        data_tests:
+          - unique
+          - not_null
+      - name: user_session
+        description: "Unique session identifier for the user associated with the event."
+      - name: event_time
+        description: "Timestamp of the event."
+      - name: event_type
+        description: "Type of event (e.g., click, purchase)."
+      - name: product_id
+        description: "Identifier for the product associated with the event."
